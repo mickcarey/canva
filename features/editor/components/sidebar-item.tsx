@@ -21,7 +21,7 @@ export const SidebarItem = ({
       isActive && "bg-muted text-primary"
     )}>
       <Icon className="size-5 stroke-2 shrink-0" />
-      <span className="text-xs">
+      <span className="mt-2 text-xs">
         {label}
       </span>
     </Button>
