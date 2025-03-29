@@ -88,6 +88,7 @@ export type ActiveTool =
 
   export type BuildEditorProps = {
     canvas: Canvas;
+    selectedObjects: Object[]
     fillColor: string;
     strokeColor: string;
     strokeWidth: number;
@@ -109,5 +110,6 @@ export type ActiveTool =
     fillColor: string;
     strokeColor: string;
     strokeWidth: number;
-    canvas: Canvas
+    canvas: Canvas;
+    selectedObjects: Object[];
   }
