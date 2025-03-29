@@ -1,6 +1,48 @@
-import { useCallback, useState } from "react";
-import { Canvas, Rect, Shadow } from "fabric";
+import { useCallback, useMemo, useState } from "react";
+import { Canvas, Circle, Object, Rect, Shadow } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
+import { BuildEditorProps, CIRCLE_OPTIONS, Editor, RECTANGLE_OPTIONS } from "../types";
+
+const buildEditor = ({ canvas }: BuildEditorProps): Editor => {
+  const getWorkspace = () => {
+    // @ts-expect-error
+    return canvas.getObjects().find((object) => object.name === 'clip');
+  }
+
+  const center = (object: Object) => {
+    const workspace = getWorkspace();
+    const center = workspace?.getCenterPoint();
+
+    if (!center) return;
+
+    canvas._centerObject(object, center);
+  }
+
+  const addToCanvas = (object: Object) => {
+    center(object);
+    canvas.add(object);
+    canvas.setActiveObject(object);
+  }
+
+  return {
+    addCircle: () => {
+      const object = new Circle({
+        ...CIRCLE_OPTIONS
+      });
+
+      addToCanvas(object);
+    },
+    addSoftRectangle: () => {
+      const object = new Rect({
+        ...RECTANGLE_OPTIONS,
+        rx: 10,
+        ry: 10
+      });
+
+      addToCanvas(object);
+    }
+  };
+}
 
 export const useEditor = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
@@ -10,6 +52,14 @@ export const useEditor = () => {
     canvas,
     container
   });
+
+  const editor = useMemo(() => {
+    if (canvas) {
+      return buildEditor({ canvas });
+    }
+
+    return undefined;
+  }, [canvas]);
 
   const init = useCallback(({
     initialCanvas,
@@ -40,16 +90,7 @@ export const useEditor = () => {
 
     setCanvas(initialCanvas);
     setContainer(initialContainer);
-
-    const test = new Rect({
-      height: 100,
-      width: 100,
-      fill: 'black'
-    });
-
-    initialCanvas.add(test);
-    initialCanvas.centerObject(test);
   }, []);
 
-  return { init };
+  return { init, editor };
 }
