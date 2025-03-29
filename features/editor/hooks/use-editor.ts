@@ -1,9 +1,19 @@
 import { useCallback, useMemo, useState } from "react";
-import { Canvas, Circle, Object, Rect, Shadow } from "fabric";
+import { Canvas, Circle, Object, Polygon, Rect, Shadow, Triangle } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
-import { BuildEditorProps, CIRCLE_OPTIONS, Editor, RECTANGLE_OPTIONS } from "../types";
+import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, FILL_COLOR, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_WIDTH, TRIANGLE_OPTIONS } from "../types";
+import { useCanvasEvents } from "./use-canvas-events";
+import { isTextType } from "../utils";
 
-const buildEditor = ({ canvas }: BuildEditorProps): Editor => {
+const buildEditor = ({ 
+  canvas,
+  fillColor,
+  strokeColor,
+  strokeWidth,
+  setFillColor,
+  setStrokeColor,
+  setStrokeWidth
+}: BuildEditorProps): Editor => {
   const getWorkspace = () => {
     // @ts-expect-error
     return canvas.getObjects().find((object) => object.name === 'clip');
@@ -25,6 +35,29 @@ const buildEditor = ({ canvas }: BuildEditorProps): Editor => {
   }
 
   return {
+    changeStrokeWidth: (value: number) => {
+      setStrokeWidth(value);
+      canvas.getActiveObjects().forEach((object) => {
+        object.set({ strokeWidth: value });
+      })
+    },
+    changeStrokeColor: (value: string) => {
+      setStrokeColor(value);
+      canvas.getActiveObjects().forEach((object) => {
+        if (isTextType(object.type)) {
+          object.set({ fill: value });
+          return;
+        }
+
+        object.set({ stroke: value });
+      })
+    },
+    changeFillColor: (value: string) => {
+      setFillColor(value);
+      canvas.getActiveObjects().forEach((object) => {
+        object.set({ fill: value });
+      })
+    },
     addCircle: () => {
       const object = new Circle({
         ...CIRCLE_OPTIONS
@@ -40,26 +73,94 @@ const buildEditor = ({ canvas }: BuildEditorProps): Editor => {
       });
 
       addToCanvas(object);
-    }
+    },
+    addRectangle: () => {
+      const object = new Rect({
+        ...RECTANGLE_OPTIONS,
+      });
+
+      addToCanvas(object);
+    },
+    addTriangle: () => {
+      const object = new Triangle({
+        ...TRIANGLE_OPTIONS
+      });
+
+      addToCanvas(object);
+    },
+    addInverseTriangle: () => {
+      const HEIGHT = 400;
+      const WIDTH = 400;
+
+      const object = new Polygon([
+        { x: 0, y: 0 },
+        { x: WIDTH, y: 0 },
+        { x: WIDTH / 2, y: HEIGHT }
+      ]);
+
+      addToCanvas(object);
+    },
+    addDiamond: () => {
+      const HEIGHT = 400;
+      const WIDTH = 400;
+
+      const object = new Polygon([
+        { x: WIDTH / 2, y: 0 },
+        { x: WIDTH, y: HEIGHT / 2 },
+        { x: WIDTH / 2, y: HEIGHT },
+        { x: 0, y: HEIGHT / 2 }
+      ], {
+        ...DIAMOND_OPTIONS
+      });
+
+      addToCanvas(object);
+    },
+    canvas,
+    fillColor,
+    strokeColor,
+    strokeWidth
   };
 }
 
 export const useEditor = () => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
+  const [, setSelectedObjects] = useState<Object[]>([]);
+
+  const [fillColor, setFillColor] = useState(FILL_COLOR);
+  const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
+  const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
 
   useAutoResize({
     canvas,
     container
   });
 
+  useCanvasEvents({
+    canvas,
+    setSelectedObjects
+  });
+
   const editor = useMemo(() => {
     if (canvas) {
-      return buildEditor({ canvas });
+      return buildEditor({ 
+        canvas,
+        fillColor,
+        strokeColor,
+        strokeWidth,
+        setFillColor,
+        setStrokeColor,
+        setStrokeWidth
+      });
     }
 
     return undefined;
-  }, [canvas]);
+  }, [
+    canvas,
+    fillColor,
+    strokeColor,
+    strokeWidth,
+  ]);
 
   const init = useCallback(({
     initialCanvas,
