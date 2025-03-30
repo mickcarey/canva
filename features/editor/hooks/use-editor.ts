@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
-import { Canvas, Circle, Object, Polygon, Rect, Shadow, Triangle } from "fabric";
+import { Canvas, Circle, Object, Polygon, Rect, Shadow, Textbox, Triangle } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
-import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TRIANGLE_OPTIONS } from "../types";
+import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TEXT_OPTIONS, TRIANGLE_OPTIONS } from "../types";
 import { useCanvasEvents } from "./use-canvas-events";
 import { isTextType } from "../utils";
 
@@ -38,6 +38,47 @@ const buildEditor = ({
   }
 
   return {
+    addText: (value: string, options) => {
+      const object = new Textbox(value, {
+        ...TEXT_OPTIONS,
+        ...options
+      });
+
+      addToCanvas(object);
+    },
+    changeOpacity: (value: number) => {
+      canvas.getActiveObjects().forEach((object) => {
+        object.set({ opacity: value });
+      });
+
+      canvas.renderAll();
+    },
+    bringForward: () => {
+      canvas.getActiveObjects().forEach((object) => {
+        canvas.bringObjectForward(object);
+      });
+
+      canvas.renderAll();
+
+      const workspace = getWorkspace();
+
+      if (workspace) {
+        canvas.sendObjectToBack(workspace);
+      }
+    },
+    sendBackwards: () => {
+      canvas.getActiveObjects().forEach((object) => {
+        canvas.sendObjectBackwards(object);
+      });
+
+      canvas.renderAll();
+
+      const workspace = getWorkspace();
+
+      if (workspace) {
+        canvas.sendObjectToBack(workspace);
+      }
+    },
     changeStrokeDashArray: (value: number[]) => {
       setStrokeDashArray(value);
       canvas.getActiveObjects().forEach((object) => {
@@ -155,6 +196,17 @@ const buildEditor = ({
       addToCanvas(object);
     },
     canvas,
+    getActiveOpacity: () => {
+      const selectedObject = selectedObjects[0];
+
+      if (!selectedObject) {
+        return 1;
+      }
+
+      // @ts-expect-error
+      const value = selectedObject.get("opacity") || 1;
+      return value;
+    },
     getActiveFillColor: () => {
       const selectedObject = selectedObjects[0];
       if (!selectedObject) {
