@@ -7,9 +7,11 @@ import { Navbar } from "@/features/editor/components/navbar";
 import { Sidebar } from "@/features/editor/components/sidebar";
 import { Toolbar } from "@/features/editor/components/toolbar";
 import { Footer } from "@/features/editor/components/footer";
-import { ActiveTool } from "@/features/editor/types";
+import { ActiveTool, selectionDependentTools } from "@/features/editor/types";
 import { ShapeSidebar } from "./shape-sidebar";
 import { FillColorSidebar } from "./fill-color-sidebar";
+import { StrokeColorSidebar } from "./stroke-color-sidebar";
+import { StrokeWidthSidebar } from "./stroke-width-sidebar";
 
 export const Editor = () => {
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
@@ -30,7 +32,15 @@ export const Editor = () => {
     setActiveTool(tool);
   }, [activeTool]);
 
-  const { init, editor } = useEditor();
+  const onClearSelection = useCallback(() => {
+    if (selectionDependentTools.includes(activeTool)) {
+      setActiveTool("select");
+    }
+  }, [activeTool]);
+
+  const { init, editor } = useEditor({
+    clearSelectionCallback: onClearSelection
+  });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef(null);
@@ -62,6 +72,8 @@ export const Editor = () => {
         <Sidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} />
         <ShapeSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <FillColorSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
+        <StrokeColorSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
+        <StrokeWidthSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <main className="bg-muted flex-1 overflow-auto relative flex flex-col">
           <Toolbar editor={editor} activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} key={JSON.stringify(editor?.canvas.getActiveObject())} />
           <div className="flex-1 h-[calc(100%-124px)] bg-muted" ref={containerRef}>

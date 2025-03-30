@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Canvas, Circle, Object, Polygon, Rect, Shadow, Triangle } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
-import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, FILL_COLOR, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_WIDTH, TRIANGLE_OPTIONS } from "../types";
+import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TRIANGLE_OPTIONS } from "../types";
 import { useCanvasEvents } from "./use-canvas-events";
 import { isTextType } from "../utils";
 
@@ -13,7 +13,9 @@ const buildEditor = ({
   setFillColor,
   setStrokeColor,
   setStrokeWidth,
-  selectedObjects
+  selectedObjects,
+  strokeDashArray,
+  setStrokeDashArray
 }: BuildEditorProps): Editor => {
   const getWorkspace = () => {
     // @ts-expect-error
@@ -36,6 +38,13 @@ const buildEditor = ({
   }
 
   return {
+    changeStrokeDashArray: (value: number[]) => {
+      setStrokeDashArray(value);
+      canvas.getActiveObjects().forEach((object) => {
+        object.set({ strokeDashArray: value });
+      });
+      canvas.renderAll();
+    },
     changeStrokeWidth: (value: number) => {
       setStrokeWidth(value);
       canvas.getActiveObjects().forEach((object) => {
@@ -67,7 +76,8 @@ const buildEditor = ({
         ...CIRCLE_OPTIONS,
         fill: fillColor,
         stroke: strokeColor,
-        strokeWidth: strokeWidth
+        strokeWidth: strokeWidth,
+        strokeDashArray: strokeDashArray
       });
 
       addToCanvas(object);
@@ -79,7 +89,8 @@ const buildEditor = ({
         ry: 10,
         fill: fillColor,
         stroke: strokeColor,
-        strokeWidth: strokeWidth
+        strokeWidth: strokeWidth,
+        strokeDashArray: strokeDashArray
       });
 
       addToCanvas(object);
@@ -89,7 +100,8 @@ const buildEditor = ({
         ...RECTANGLE_OPTIONS,
         fill: fillColor,
         stroke: strokeColor,
-        strokeWidth: strokeWidth
+        strokeWidth: strokeWidth,
+        strokeDashArray: strokeDashArray
       });
 
       addToCanvas(object);
@@ -99,7 +111,8 @@ const buildEditor = ({
         ...TRIANGLE_OPTIONS,
         fill: fillColor,
         stroke: strokeColor,
-        strokeWidth: strokeWidth
+        strokeWidth: strokeWidth,
+        strokeDashArray: strokeDashArray
       });
 
       addToCanvas(object);
@@ -116,7 +129,8 @@ const buildEditor = ({
         ...TRIANGLE_OPTIONS,
         fill: fillColor,
         stroke: strokeColor,
-        strokeWidth: strokeWidth
+        strokeWidth: strokeWidth,
+        strokeDashArray: strokeDashArray
       });
 
       addToCanvas(object);
@@ -134,20 +148,64 @@ const buildEditor = ({
         ...DIAMOND_OPTIONS,
         fill: fillColor,
         stroke: strokeColor,
-        strokeWidth: strokeWidth
+        strokeWidth: strokeWidth,
+        strokeDashArray: strokeDashArray
       });
 
       addToCanvas(object);
     },
     canvas,
-    fillColor,
-    strokeColor,
-    strokeWidth,
+    getActiveFillColor: () => {
+      const selectedObject = selectedObjects[0];
+      if (!selectedObject) {
+        return fillColor;
+      }
+
+      // @ts-expect-error
+      const value = selectedObject.get('fill') || fillColor;
+
+      return value as string;
+    },
+    getActiveStrokeColor: () => {
+      const selectedObject = selectedObjects[0];
+      if (!selectedObject) {
+        return strokeColor;
+      }
+
+      // @ts-expect-error
+      const value = selectedObject.get('stroke') || strokeColor;
+
+      return value as string;
+    },
+    getActiveStrokeWidth: () => {
+      const selectedObject = selectedObjects[0];
+      if (!selectedObject) {
+        return strokeWidth;
+      }
+
+      // @ts-expect-error
+      const value = selectedObject.get('strokeWidth') || strokeWidth;
+
+      return value as number;
+    },
+    getActiveStrokeDashArray: () => {
+      const selectedObject = selectedObjects[0];
+      if (!selectedObject) {
+        return strokeDashArray;
+      }
+
+      // @ts-expect-error
+      const value = selectedObject.get('strokeDashArray') || strokeDashArray;
+
+      return value;
+    },
     selectedObjects
   };
 }
 
-export const useEditor = () => {
+export const useEditor = ({
+  clearSelectionCallback
+}: EditorHookProps) => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const [selectedObjects, setSelectedObjects] = useState<Object[]>([]);
@@ -155,6 +213,7 @@ export const useEditor = () => {
   const [fillColor, setFillColor] = useState(FILL_COLOR);
   const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);
   const [strokeWidth, setStrokeWidth] = useState(STROKE_WIDTH);
+  const [strokeDashArray, setStrokeDashArray] = useState<number[]>(STROKE_DASH_ARRAY);
 
   useAutoResize({
     canvas,
@@ -163,7 +222,8 @@ export const useEditor = () => {
 
   useCanvasEvents({
     canvas,
-    setSelectedObjects
+    setSelectedObjects,
+    clearSelectionCallback
   });
 
   const editor = useMemo(() => {
@@ -176,7 +236,9 @@ export const useEditor = () => {
         setFillColor,
         setStrokeColor,
         setStrokeWidth,
-        selectedObjects
+        selectedObjects,
+        strokeDashArray,
+        setStrokeDashArray
       });
     }
 
@@ -186,7 +248,8 @@ export const useEditor = () => {
     fillColor,
     strokeColor,
     strokeWidth,
-    selectedObjects
+    selectedObjects,
+    strokeDashArray
   ]);
 
   const init = useCallback(({
