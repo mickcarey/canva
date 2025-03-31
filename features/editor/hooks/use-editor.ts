@@ -1,10 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { Canvas, Circle, Object, Polygon, Rect, Shadow, Textbox, Triangle } from "fabric";
+import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, FabricObject } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
 import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, FONT_FAMILY, FONT_SIZE, FONT_STYLE, FONT_WEIGHT, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TEXT_OPTIONS, TRIANGLE_OPTIONS } from "../types";
 import { useCanvasEvents } from "./use-canvas-events";
 import { isTextType } from "../utils";
-import { ITextboxOptions } from "fabric/fabric-impl";
 
 const buildEditor = ({ 
   canvas,
@@ -25,7 +24,7 @@ const buildEditor = ({
     return canvas.getObjects().find((object) => object.name === 'clip');
   }
 
-  const center = (object: Object) => {
+  const center = (object: FabricObject) => {
     const workspace = getWorkspace();
     const center = workspace?.getCenterPoint();
 
@@ -34,13 +33,18 @@ const buildEditor = ({
     canvas._centerObject(object, center);
   }
 
-  const addToCanvas = (object: Object) => {
+  const addToCanvas = (object: FabricObject) => {
     center(object);
     canvas.add(object);
     canvas.setActiveObject(object);
   }
 
   return {
+    addImage: async (value: string) => {
+      const object = await FabricImage.fromURL(value);
+      addToCanvas(object);
+      canvas.renderAll();
+    },
     delete: () => {
       canvas.getActiveObjects().forEach((object) => {
         canvas.remove(object);
@@ -410,7 +414,7 @@ export const useEditor = ({
 }: EditorHookProps) => {
   const [canvas, setCanvas] = useState<Canvas | null>(null);
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
-  const [selectedObjects, setSelectedObjects] = useState<Object[]>([]);
+  const [selectedObjects, setSelectedObjects] = useState<FabricObject[]>([]);
 
   const [fillColor, setFillColor] = useState(FILL_COLOR);
   const [strokeColor, setStrokeColor] = useState(STROKE_COLOR);

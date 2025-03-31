@@ -158,6 +158,7 @@ export interface Editor {
   changeFontUnderline: (value: boolean) => void;
   changeTextAlignment: (value: string) => void;
   changeFontSize: (value: number) => void;
+  addImage: (value: string) => void;
   addCircle: () => void;
   addSoftRectangle: () => void;
   addRectangle: () => void;
