@@ -16,6 +16,7 @@ import { OpacitySidebar } from "./opacity-sidebar";
 import { TextSidebar } from "./text-sidebar";
 import { FontSidebar } from "./font-sidebar";
 import { ImageSidebar } from "./image-sidebar";
+import { FilterSidebar } from "./filter-sidebar";
 
 export const Editor = () => {
   const [activeTool, setActiveTool] = useState<ActiveTool>("select");
@@ -82,6 +83,7 @@ export const Editor = () => {
         <TextSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <FontSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <ImageSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
+        <FilterSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <main className="bg-muted flex-1 overflow-auto relative flex flex-col">
           <Toolbar editor={editor} activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} key={JSON.stringify(editor?.canvas.getActiveObject())} />
           <div className="flex-1 h-[calc(100%-124px)] bg-muted" ref={containerRef}>

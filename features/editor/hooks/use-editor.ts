@@ -3,7 +3,7 @@ import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, 
 import { useAutoResize } from "./use-auto-resize";
 import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, FONT_FAMILY, FONT_SIZE, FONT_STYLE, FONT_WEIGHT, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TEXT_OPTIONS, TRIANGLE_OPTIONS } from "../types";
 import { useCanvasEvents } from "./use-canvas-events";
-import { isTextType } from "../utils";
+import { createFilter, isTextType } from "../utils";
 
 const buildEditor = ({ 
   canvas,
@@ -40,8 +40,21 @@ const buildEditor = ({
   }
 
   return {
+    changeImageFilter: (value: string) => {
+      canvas.getActiveObjects().forEach((object) => {
+        if (object.type === "image") {
+          const imageObject = object as FabricImage;
+          const effect = createFilter(value);
+          imageObject.filters = effect ? [effect] : [];
+          imageObject.applyFilters();
+          canvas.renderAll();
+        }
+      });
+    },
     addImage: async (value: string) => {
-      const object = await FabricImage.fromURL(value);
+      const object = await FabricImage.fromURL(value, {
+        crossOrigin: 'anonymous'
+      });
       addToCanvas(object);
       canvas.renderAll();
     },

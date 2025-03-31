@@ -1,6 +1,16 @@
 import { Canvas, TextboxProps } from "fabric";
 import * as material from "material-colors";
 
+export const filters = [
+  "none",
+  "polaroid",
+  "sepia",
+  "brownie",
+  "technicolor",
+  "pixelate",
+  "vintage"
+];
+
 export const fonts = [
   "Arial",
   "Arial Black",
@@ -146,6 +156,7 @@ export type BuildEditorProps = {
 }
 
 export interface Editor {
+  changeImageFilter: (value: string) => void;
   changeStrokeWidth: (value: number) => void;
   changeFillColor: (value: string) => void;
   changeStrokeColor: (value: string) => void;
