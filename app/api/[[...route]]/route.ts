@@ -5,11 +5,10 @@ import images from "./images";
 
 export const runtime = "nodejs";
 
-const app = new Hono().basePath('/api');
-
-const routes = app
+const app = new Hono()
+  .basePath('/api')
   .route("/images", images);
 
 export const GET = handle(app);
 
-export type AppType = typeof routes;
+export type AppType = typeof app;
