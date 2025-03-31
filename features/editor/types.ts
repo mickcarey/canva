@@ -1,6 +1,26 @@
 import { Canvas, TextboxProps } from "fabric";
-import { ITextboxOptions } from "fabric/fabric-impl";
 import * as material from "material-colors";
+
+export const fonts = [
+  "Arial",
+  "Arial Black",
+  "Verdana",
+  "Helvetica",
+  "Tahoma",
+  "Trebuchet MS",
+  "Times New Roman",
+  "Georgia",
+  "Garamond",
+  "Courier New",
+  "Brush Script MT",
+  "Palatino",
+  "Bookman",
+  "Comic Sans MS",
+  "Impact",
+  "Lucida Sans Unicode",
+  "Geneva",
+  "Lucida Console",
+];
 
 export const selectionDependentTools = [
   "fill",
@@ -10,7 +30,7 @@ export const selectionDependentTools = [
   "remove-bg",
   "stroke-color",
   "stroke-width"
-]
+];
 
 export const colors = [
   material.red["500"],
@@ -57,6 +77,8 @@ export const STROKE_WIDTH = 2;
 export const STROKE_DASH_ARRAY = [];
 export const FONT_FAMILY = "Arial";
 export const FONT_SIZE = 32;
+export const FONT_WEIGHT = 400;
+export const FONT_STYLE = "normal";
 
 export const RECTANGLE_OPTIONS = {
   left: 100,
@@ -119,6 +141,8 @@ export type BuildEditorProps = {
   setStrokeWidth: (value: number) => void;
   setStrokeDashArray: (value: number[]) => void;
   strokeDashArray: number[];
+  fontFamily: string;
+  setFontFamily: (value: string) => void;
 }
 
 export interface Editor {
@@ -127,6 +151,13 @@ export interface Editor {
   changeStrokeColor: (value: string) => void;
   changeStrokeDashArray: (value: number[]) => void;
   changeOpacity: (value: number) => void;
+  changeFontFamily: (value: string) => void;
+  changeFontWeight: (value: number) => void;
+  changeFontStyle: (value: string) => void;
+  changeFontLinethrough: (value: boolean) => void;
+  changeFontUnderline: (value: boolean) => void;
+  changeTextAlignment: (value: string) => void;
+  changeFontSize: (value: number) => void;
   addCircle: () => void;
   addSoftRectangle: () => void;
   addRectangle: () => void;
@@ -137,10 +168,18 @@ export interface Editor {
   getActiveStrokeColor: () => string;
   getActiveStrokeWidth: () => number;
   getActiveStrokeDashArray: () => number[];
+  getActiveFontFamily: () => string;
+  getActiveFontWeight: () => number;
+  getActiveFontStyle: () => string;
+  getActiveOpacity: () => number;
+  getActiveFontLinethrough: () => boolean;
+  getActiveFontUnderline: () => boolean;
+  getActiveTextAlignment: () => boolean;
+  getActiveFontSize: () => number;
   bringForward: () => void;
   sendBackwards: () => void;
-  getActiveOpacity: () => number;
   addText: (value: string, options?: Partial<TextboxProps>) => void;
+  delete: () => void;
   canvas: Canvas;
   selectedObjects: Object[];
 }
