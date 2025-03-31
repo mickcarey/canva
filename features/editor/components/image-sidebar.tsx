@@ -5,6 +5,9 @@ import { ToolSidebarClose } from "./tool-sidebar-close";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGetImages } from "@/features/images/api/use-get-images";
 import { AlertTriangle, Loader } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 
 interface ImageSidebarProps {
   activeTool: ActiveTool;
@@ -43,7 +46,27 @@ export const ImageSidebar = ({
         </div>
       )}
       <ScrollArea>
-        <div className="p-4 space-y-1 border-b">
+        <div className="p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {data && data.map((image) => {
+              return (
+                <button
+                  key={image.id}
+                  className="relative w-full h-[100px] group hover:opacity-75 transition bg-muted rounded-sm overflow-hidden border"
+                >
+                  <Image
+                    fill
+                    src={image.urls.small}
+                    alt={image.alt_description || "Image"}
+                    className="object-cover"
+                  />
+                  <Link target="_blank" href={image.links.html} className="opacity-0 group-hover:opacity-100 absolute left-0 bottom-0 w-full text-[10px] truncate text-white hover:underline p-1 bg-black/50 text-left">
+                    {image.user.name}
+                  </Link>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </ScrollArea>
       <ToolSidebarClose onClick={onClose} />

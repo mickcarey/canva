@@ -21,7 +21,7 @@ const app = new Hono()
       response = [response];
     }
 
-    return c.json({ data: { images: response } });
+    return c.json({ data: response });
   });
 
 export default app;
