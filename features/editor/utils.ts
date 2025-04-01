@@ -25,6 +25,30 @@ export const createFilter = (value: string) => {
     case "sepia":
       effect = new filters.Sepia();
       break;
+    case "invert":
+      effect = new filters.Invert();
+      break;
+    case "sharpen":
+      effect = new filters.Convolute({ matrix: [0, -1, 0, -1, 5, -1, 0, -1, 0]});
+      break;
+    case "emboss":
+      effect = new filters.Convolute({ matrix: [1, 1, 1, 1, 0.7, -1, -1, -1, -1]});
+      break;
+    case "blur":
+      effect = new filters.Blur({ blur: 0.4 });
+      break;
+    case "grayscale":
+      effect = new filters.Grayscale();
+      break;
+    case "kodachrome":
+      effect = new filters.Kodachrome();
+      break;
+    case "contrast":
+      effect = new filters.Contrast({ contrast: 0.3 });
+      break;
+    case "brightness":
+      effect = new filters.Brightness({ brightness: 0.8 });
+      break;
     case "brownie":
       effect = new filters.Brownie();
       break;
@@ -36,6 +60,9 @@ export const createFilter = (value: string) => {
       break;
     case "pixelate":
       effect = new filters.Pixelate();
+      break;
+    case "blackwhite":
+      effect = new filters.BlackWhite();
       break;
     default:
       effect = new filters.BaseFilter();

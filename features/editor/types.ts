@@ -8,7 +8,15 @@ export const filters = [
   "brownie",
   "technicolor",
   "pixelate",
-  "vintage"
+  "vintage",
+  "kodachrome",
+  "contrast",
+  "brightness",
+  "grayscale",
+  "invert",
+  "blur",
+  "sharpen",
+  "emboss"
 ];
 
 export const fonts = [
