@@ -30,7 +30,7 @@ const app = new Hono()
         }
       );
 
-      // @ts-expect-error
+      // @ts-expect-error url is a function on output
       const url = await output.url();
 
       return c.json({ data: url.href });
