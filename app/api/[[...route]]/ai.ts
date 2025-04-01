@@ -4,6 +4,28 @@ import { z } from "zod";
 import { replicate } from "@/lib/replicate";
 
 const app = new Hono()
+  .post("/remove-bg",
+    zValidator(
+      "json",
+      z.object({
+        image: z.string()
+      })
+    ),
+    async (c) => {
+      const { image } = c.req.valid("json");
+
+      const input = {
+        image: image
+      };
+
+      const output = await replicate.run("lucataco/remove-bg:95fcc2a26d3899cd6c2691c900465aaeff466285a65c14638cc5f36f34befaf1", { input });
+
+      // @ts-expect-error url is a function on output
+      const url = await output.url();
+
+      return c.json({ data: url.href });
+    }
+  )
   .post("/generate-image", 
     zValidator(
       "json",
