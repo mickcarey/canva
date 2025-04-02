@@ -79,4 +79,6 @@ export const useAutoResize = ({ canvas, container }: Props) => {
     }
 
   }, [canvas, container])
+
+  return { autoZoom };
 }

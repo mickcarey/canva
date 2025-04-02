@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, FabricObject, PencilBrush } from "fabric";
+import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, FabricObject, PencilBrush, Point } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
 import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, FONT_FAMILY, FONT_SIZE, FONT_STYLE, FONT_WEIGHT, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TEXT_OPTIONS, TRIANGLE_OPTIONS } from "../types";
 import { useCanvasEvents } from "./use-canvas-events";
@@ -7,6 +7,7 @@ import { createFilter, isTextType } from "../utils";
 import { useClipboard } from "./use-clipboard";
 
 const buildEditor = ({ 
+  autoZoom,
   canvas,
   fillColor,
   strokeColor,
@@ -43,6 +44,38 @@ const buildEditor = ({
   }
 
   return {
+    autoZoom,
+    zoomIn: () => {
+      let zoomRatio = canvas.getZoom();
+      zoomRatio += 0.05;
+
+      const center = canvas.getCenter();
+      canvas.zoomToPoint(
+        new Point(center.left, center.top),
+        zoomRatio < 0.2 ? 0.2 : zoomRatio
+      );
+    },
+    zoomOut: () => {
+      let zoomRatio = canvas.getZoom();
+      zoomRatio -= 0.05;
+      const center = canvas.getCenter();
+      canvas.zoomToPoint(
+        new Point(center.left, center.top),
+        zoomRatio < 0.2 ? 0.2 : zoomRatio,
+      );
+    },
+    getWorkspace: () => getWorkspace(),
+    changeSize: (value: { width: number, height: number }) => {
+      const workspace = getWorkspace();
+
+      workspace?.set(value);
+      autoZoom();
+    },
+    changeBackground: (value: string) => {
+      const workspace = getWorkspace();
+      workspace?.set({ fill: value });
+      canvas.renderAll();
+    },
     enableDrawingMode: () => {
       canvas.discardActiveObject();
       canvas.renderAll();
@@ -460,7 +493,7 @@ export const useEditor = ({
 
   const { copy, paste } = useClipboard({ canvas });
 
-  useAutoResize({
+  const { autoZoom } = useAutoResize({
     canvas,
     container
   });
@@ -487,7 +520,8 @@ export const useEditor = ({
         setStrokeColor,
         setStrokeWidth,
         setStrokeDashArray,
-        setFontFamily
+        setFontFamily,
+        autoZoom
       });
     }
 
@@ -501,7 +535,8 @@ export const useEditor = ({
     strokeDashArray,
     fontFamily,
     copy,
-    paste
+    paste,
+    autoZoom
   ]);
 
   const init = useCallback(({

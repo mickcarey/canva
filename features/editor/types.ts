@@ -1,4 +1,4 @@
-import { Canvas, TextboxProps } from "fabric";
+import { Canvas, FabricObject, TextboxProps } from "fabric";
 import * as material from "material-colors";
 
 export const filters = [
@@ -150,6 +150,7 @@ export const TEXT_OPTIONS = {
 
 export type BuildEditorProps = {
   canvas: Canvas;
+  autoZoom: () => void;
   selectedObjects: Object[]
   fillColor: string;
   strokeColor: string;
@@ -166,6 +167,12 @@ export type BuildEditorProps = {
 }
 
 export interface Editor {
+  autoZoom: () => void;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  changeSize: (value: { width: number, height: number }) => void;
+  changeBackground: (value: string) => void;
+  getWorkspace: () => FabricObject | undefined;
   changeImageFilter: (value: string) => void;
   changeStrokeWidth: (value: number) => void;
   changeFillColor: (value: string) => void;
