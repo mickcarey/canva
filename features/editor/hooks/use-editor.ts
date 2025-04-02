@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
-import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, FabricObject } from "fabric";
+import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, FabricObject, PencilBrush } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
 import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, FONT_FAMILY, FONT_SIZE, FONT_STYLE, FONT_WEIGHT, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TEXT_OPTIONS, TRIANGLE_OPTIONS } from "../types";
 import { useCanvasEvents } from "./use-canvas-events";
 import { createFilter, isTextType } from "../utils";
+import { useClipboard } from "./use-clipboard";
 
 const buildEditor = ({ 
   canvas,
@@ -17,7 +18,9 @@ const buildEditor = ({
   setStrokeColor,
   setStrokeWidth,
   setStrokeDashArray,
-  setFontFamily
+  setFontFamily,
+  copy,
+  paste
 }: BuildEditorProps): Editor => {
   const getWorkspace = () => {
     // @ts-expect-error
@@ -40,6 +43,22 @@ const buildEditor = ({
   }
 
   return {
+    enableDrawingMode: () => {
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      canvas.isDrawingMode = true;
+
+      // @ts-expect-error freeDrawingBrush already set
+      canvas.freeDrawingBrush.width = strokeWidth;
+
+      // @ts-expect-error freeDrawingBrush already set
+      canvas.freeDrawingBrush.color = strokeColor;
+    },
+    disableDrawingMode: () => {
+      canvas.isDrawingMode = false;
+    },
+    onCopy: copy,
+    onPaste: paste,
     changeImageFilter: (value: string) => {
       canvas.getActiveObjects().forEach((object) => {
         if (object.type === "image") {
@@ -172,6 +191,8 @@ const buildEditor = ({
       canvas.getActiveObjects().forEach((object) => {
         object.set({ strokeWidth: value });
       });
+      // @ts-expect-error freeDrawingBrush already set
+      canvas.freeDrawingBrush.width = value;
       canvas.renderAll();
     },
     changeStrokeColor: (value: string) => {
@@ -184,6 +205,8 @@ const buildEditor = ({
 
         object.set({ stroke: value });
       });
+      // @ts-expect-error freeDrawingBrush already set
+      canvas.freeDrawingBrush.color = value;
       canvas.renderAll();
     },
     changeFontFamily: (value: string) => {
@@ -435,6 +458,8 @@ export const useEditor = ({
   const [strokeDashArray, setStrokeDashArray] = useState<number[]>(STROKE_DASH_ARRAY);
   const [fontFamily, setFontFamily] = useState(FONT_FAMILY);
 
+  const { copy, paste } = useClipboard({ canvas });
+
   useAutoResize({
     canvas,
     container
@@ -449,6 +474,8 @@ export const useEditor = ({
   const editor = useMemo(() => {
     if (canvas) {
       return buildEditor({ 
+        copy,
+        paste,
         canvas,
         fillColor,
         strokeColor,
@@ -472,7 +499,9 @@ export const useEditor = ({
     strokeWidth,
     selectedObjects,
     strokeDashArray,
-    fontFamily
+    fontFamily,
+    copy,
+    paste
   ]);
 
   const init = useCallback(({
@@ -501,6 +530,8 @@ export const useEditor = ({
     initialCanvas.add(initialWorkspace);
     initialCanvas.centerObject(initialWorkspace);
     initialCanvas.clipPath = initialWorkspace;
+
+    initialCanvas.freeDrawingBrush = new PencilBrush(initialCanvas);
 
     setCanvas(initialCanvas);
     setContainer(initialContainer);

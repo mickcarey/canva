@@ -55,7 +55,7 @@ export const useAutoResize = ({ canvas, container }: Props) => {
     canvas.setViewportTransform(viewportTransform);
 
     // @ts-expect-error
-    localWorkspace.clone((cloned: Rect) => {
+    localWorkspace.clone().then((cloned: Rect) => {
       canvas.clipPath = cloned;
       canvas.requestRenderAll();
     });

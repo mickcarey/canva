@@ -161,6 +161,8 @@ export type BuildEditorProps = {
   strokeDashArray: number[];
   fontFamily: string;
   setFontFamily: (value: string) => void;
+  copy: () => void;
+  paste: () => void;
 }
 
 export interface Editor {
@@ -200,6 +202,10 @@ export interface Editor {
   sendBackwards: () => void;
   addText: (value: string, options?: Partial<TextboxProps>) => void;
   delete: () => void;
+  onCopy: () => void;
+  onPaste: () => void;
+  enableDrawingMode: () => void;
+  disableDrawingMode: () => void;
   canvas: Canvas;
   selectedObjects: Object[];
 }
