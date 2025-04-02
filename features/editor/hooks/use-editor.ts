@@ -49,18 +49,18 @@ const buildEditor = ({
       let zoomRatio = canvas.getZoom();
       zoomRatio += 0.05;
 
-      const center = canvas.getCenter();
+      const center = canvas.getCenterPoint();
       canvas.zoomToPoint(
-        new Point(center.left, center.top),
-        zoomRatio < 0.2 ? 0.2 : zoomRatio
+        new Point(center.x, center.y),
+        zoomRatio > 1 ? 1 : zoomRatio
       );
     },
     zoomOut: () => {
       let zoomRatio = canvas.getZoom();
       zoomRatio -= 0.05;
-      const center = canvas.getCenter();
+      const center = canvas.getCenterPoint();
       canvas.zoomToPoint(
-        new Point(center.left, center.top),
+        new Point(center.x, center.y),
         zoomRatio < 0.2 ? 0.2 : zoomRatio,
       );
     },
