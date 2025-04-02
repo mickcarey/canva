@@ -1,6 +1,17 @@
 import { Canvas, FabricObject, TextboxProps } from "fabric";
 import * as material from "material-colors";
 
+export const JSON_KEYS = [
+  "name",
+  "gradientAngle",
+  "selectable",
+  "hasControls",
+  "linkData",
+  "editable",
+  "extensionType",
+  "extension"
+];
+
 export const filters = [
   "none",
   "polaroid",
@@ -164,9 +175,18 @@ export type BuildEditorProps = {
   setFontFamily: (value: string) => void;
   copy: () => void;
   paste: () => void;
+  undo: () => void;
+  save: (skip?: boolean) => void;
+  redo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
 }
 
 export interface Editor {
+  onUndo: () => void;
+  onRedo: () => void;
+  canUndo: () => boolean;
+  canRedo: () => boolean;
   autoZoom: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
