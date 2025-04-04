@@ -1,12 +1,13 @@
 import { useCallback, useMemo, useState } from "react";
-import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, FabricObject, PencilBrush, Point } from "fabric";
+import { Canvas, Circle, Polygon, Rect, Shadow, Textbox, Triangle, FabricImage, FabricObject, PencilBrush, Point, TDataUrlOptions } from "fabric";
 import { useAutoResize } from "./use-auto-resize";
 import { BuildEditorProps, CIRCLE_OPTIONS, DIAMOND_OPTIONS, Editor, EditorHookProps, FILL_COLOR, FONT_FAMILY, FONT_SIZE, FONT_STYLE, FONT_WEIGHT, JSON_KEYS, RECTANGLE_OPTIONS, STROKE_COLOR, STROKE_DASH_ARRAY, STROKE_WIDTH, TEXT_OPTIONS, TRIANGLE_OPTIONS } from "../types";
 import { useCanvasEvents } from "./use-canvas-events";
-import { createFilter, isTextType } from "../utils";
+import { createFilter, downloadFile, isTextType, transformText } from "../utils";
 import { useClipboard } from "./use-clipboard";
 import { useHistory } from "./use-history";
 import { useHotkeys } from "./use-hotkeys";
+import { useWindowEvents } from "./use-window-events";
 
 const buildEditor = ({ 
   autoZoom,
@@ -30,6 +31,67 @@ const buildEditor = ({
   copy,
   paste
 }: BuildEditorProps): Editor => {
+  const generateSaveOptions = (): TDataUrlOptions => {
+    const { width, height, left, top } = getWorkspace() as Rect;
+
+    return {
+      format: "png",
+      quality: 1,
+      multiplier: 1,
+      width,
+      height,
+      left,
+      top
+    }
+  }
+
+  const savePng = () => {
+    const options = generateSaveOptions();
+
+    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    const dataUrl = canvas.toDataURL(options);
+
+    downloadFile(dataUrl, 'png');
+    autoZoom();
+  }
+
+  const saveSvg = () => {
+    const options = generateSaveOptions();
+
+    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    const dataUrl = canvas.toDataURL(options);
+
+    downloadFile(dataUrl, 'svg');
+    autoZoom();
+  }
+
+  const saveJpg = () => {
+    const options = generateSaveOptions();
+
+    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    const dataUrl = canvas.toDataURL(options);
+
+    downloadFile(dataUrl, 'jpg');
+    autoZoom();
+  }
+
+  const saveJson = async () => {
+    const dataUrl = canvas.toObject(JSON_KEYS);
+
+    await transformText(dataUrl.objects);
+    const fileString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(dataUrl, null, "\t"))}`;
+
+    downloadFile(fileString, "json");
+  }
+
+  const loadJson = (json: string) => {
+    const data = JSON.parse(json);
+
+    canvas.loadFromJSON(data, () => {
+      autoZoom();
+    });
+  }
+
   const getWorkspace = () => {
     // @ts-expect-error
     return canvas.getObjects().find((object) => object.name === 'clip');
@@ -51,6 +113,11 @@ const buildEditor = ({
   }
 
   return {
+    savePng,
+    saveJpg,
+    saveSvg,
+    saveJson,
+    loadJson,
     autoZoom,
     zoomIn: () => {
       let zoomRatio = canvas.getZoom();
@@ -520,6 +587,8 @@ export const useEditor = ({
     canvas,
     container
   });
+
+  useWindowEvents();
 
   useCanvasEvents({
     canvas,
