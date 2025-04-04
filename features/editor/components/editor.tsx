@@ -89,7 +89,7 @@ export const Editor = () => {
         <FontSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <ImageSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <FilterSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
-        {/* <AiSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} /> */}
+        <AiSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <RemoveBgSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <DrawSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />
         <SettingsSidebar activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} editor={editor} />

@@ -1,9 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { protectServer } from "@/features/auth/utils";
 
-export default function Home() {
+export default async function Home() {
+  await protectServer();
+
   return (
     <div>
-      <Button variant="destructive" size="lg">Hello World</Button>
+      You are logged in
     </div>
   );
 }
